@@ -1,7 +1,7 @@
 // To - Do : 
     // Database ismi değiştirilecek
-
-
+    // Get rooms kısmında password çıkmaması gerekiyor
+    // eğer aynı isimde bir 
 const express = require('express')
 require('./db/mongoose')
 const User = require('./models/user')
@@ -9,10 +9,10 @@ const Room = require('./models/room')
 const bodyParser = require('body-parser')
 
 const app = express()
-const port = 3000
+const port = 3005
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended:true}))
-
+//app.use(express.json())
 // çalıştı
 app.get('/users', async (req,res) => {
     User.find({}).then((users) =>{
@@ -56,6 +56,10 @@ app.patch('/users/id=:id', async (req,res) => {
     try
     {
         const _id = req.params.id
+        const _body = req.body
+        console.log(_id)
+        console.log(req.body)
+
         const user = await User.findByIdAndUpdate(_id, req.body ,{new : true , runValidators:true})
         if(!user){
             return res.status(404).send()

@@ -13,6 +13,13 @@ const Room = mongoose.model('Room',{
     guest:{
         type:String,
     },
+    hostId:{
+        type:String,
+        required : true
+    },
+    guestId:{
+        type:String,
+    },
     password:{
         type:String,
         required:false,
