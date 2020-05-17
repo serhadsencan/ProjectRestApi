@@ -101,7 +101,7 @@ app.get('/rooms', (req,res) => {
 app.get('/rooms/id=:id', async (req,res)=>{
     const _id = req.params.id
     console.log(_id)
-    await Room.find({id:_id }).then((room)=>{
+    await Room.find({_id:_id }).then((room)=>{
         console.log("sa"+room)
         if(!room){
             return res.status(404).send()
