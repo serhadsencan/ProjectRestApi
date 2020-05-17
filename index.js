@@ -96,6 +96,26 @@ app.get('/rooms', (req,res) => {
         res.status(500).send()
     })
 })
+
+
+app.get('/rooms/id=:id', (req,res) => {
+    try
+    {
+        console.log(req.body)
+        //const room = Room.findById(req.params.id)
+        const room =await Room.findById(req.params.id, req.body,{new : true , runValidators:true})
+        if(!room){
+            return res.status(404).send()
+        }
+        res.send(room)
+    }
+    catch(e)
+    {
+        console.log(e)
+        res.status(400).send(e)
+    }
+})
+
 app.patch('/rooms/id=:id', async (req,res) => {
     try
     {
