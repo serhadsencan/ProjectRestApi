@@ -82,7 +82,7 @@ app.post('/rooms', async (req , res) => {
         await room.save()
         res.status(201).send(room)
     } catch (error) {
-        res.status(400).send(e)
+        res.status(400).send(error)
     }
 })
 
@@ -92,7 +92,7 @@ app.get('/rooms', (req,res) => {
             delete room.password
         })
         res.send(rooms)
-    }).catch((e)=>{
+    }).catch( (e)=>{
         res.status(500).send()
     })
 })
@@ -112,7 +112,7 @@ app.patch('/rooms/id=:id', async (req,res) => {
         console.log(e)
         res.status(400).send(e)
     }
-} )
+})
 
 
 
