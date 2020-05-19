@@ -118,13 +118,24 @@ async function sendDataToClients(RoomId){
 			conType:1
 		}
 		publicEndpointB = {
+			
 			name:guest.userId,
     		address: guest.publicIp,
 			port: guest.publicPort,
 			localAddress:guest.localIp,
 			localPort: guest.localPort,
 			conType:1
-    	}
+		}
+		var RequestA = {
+			Action:"RefreshLobby",
+			User : "Server",
+			Payload: JSON.stringify(publicEndpointA)
+		}
+		var RequestB = {
+			Action:"RefreshLobby",
+			User : "Server",
+			Payload: JSON.stringify(publicEndpointB)
+		}
 		// Nat type evaluation
 		if(publicEndpointA.address==publicEndpointB.address)
 		{
@@ -135,13 +146,14 @@ async function sendDataToClients(RoomId){
 		console.log("B: "+JSON.stringify(publicEndpointB))
 
 	
-		var messageForA = new Buffer(JSON.stringify(publicEndpointB));
+		var messageForA = new Buffer(JSON.stringify(RequestB));
 		socket.send(messageForA, 0, messageForA.length, publicEndpointA.port,publicEndpointA.address, function (err, nrOfBytesSent) {
 			if(err) return console.log(err);
 			console.log('> public endpoint of B sent to A');
 		});
 
-		var messageForB = new Buffer(JSON.stringify(publicEndpointA));
+		
+		var messageForB = new Buffer(JSON.stringify(RequestA));
 		socket.send(messageForB, 0, messageForB.length, publicEndpointB.port, publicEndpointB.address, function (err, nrOfBytesSent) {
 			if(err) return console.log(err);
 			console.log('> public endpoint of A sent to B');
