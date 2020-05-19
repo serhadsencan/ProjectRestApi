@@ -7,6 +7,7 @@ require('./db/mongoose')
 const User = require('./models/user')
 const Room = require('./models/room')
 const bodyParser = require('body-parser')
+const Client = require('./models/client')
 
 const app = express()
 const port = 3005
@@ -131,7 +132,16 @@ app.patch('/rooms/id=:id', async (req,res) => {
     }
 })
 
-
+app.get('/clients', (req,res) => {
+    Client.find({}).then((clients) =>{
+        clients.forEach ((client) =>{
+            delete room.password
+        })
+        res.send(clients)
+    }).catch( (e)=>{
+        res.status(500).send()
+    })
+})
 
 app.listen(port, ()=> {
     console.log('Server is up on your port '+ port)
