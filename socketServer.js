@@ -1,14 +1,14 @@
 var dgram = require('dgram');
+const Client = require('./models/client');
+require('./db/mongoose')
 
 var socket = dgram.createSocket('udp4');
-socket.bind(33333, '134.122.95.112');
-
+//socket.bind(33333, '134.122.95.112');
+socket.bind(33333,'127.0.0.1');
 //Type0: same nat type1: different nat type2: multiple nat 
 var connectionType=1;
 var publicEndpointA = null;
 var publicEndpointB = null;
-
-
 
 
 socket.on('listening', function () {
@@ -20,15 +20,15 @@ socket.on('message', function (message, remote) {
 	var messageJson = JSON.parse(message);
 	var payload = JSON.parse(messageJson.Payload);	
 
-    if (messageJson.Type =="CreateGameLobby")
+    if (messageJson.Action =="CreateGameLobby")
 	{
 		CreateGameLobby(payload,remote);
 	}
-	else if (messageJson.Type =="JoinGameLobby")
+	else if (messageJson.Action =="JoinGameLobby")
 	{
-
+		JoinGameLobby(payload,remote); 
     }
-    else if (messageJson.Type =="StartHolePunch")
+    else if (messageJson.Action =="StartHolePunch")
 	{
 		StartHolePunch(payload,remote);
 	}
@@ -39,57 +39,101 @@ socket.on('message', function (message, remote) {
 
 // Request Handler metotları 
 
-
-// Random lobby id generator gerekiyor.
-function CreateGameLobby(payload,remote)
+async function CreateGameLobby(payload,remote)
 {
-	var response={}
-
-}
-
-function StartHolePunch(payload,remote)
-{
-
-	if(payload.name == 'A') {
-    	publicEndpointA = {
-    		name: 'A',
-    		address: remote.address,
-			port: remote.port,
-			localAddress:payload.localAddress,
-			localPort: payload.localPort,
-			conType:connectionType
-    	}
+	clientInfo = {
+		userId:payload.userId,
+		roomId:payload.roomId,
+		host:payload.Host,
+		localIp:payload.localIp,
+		localPort:payload.localPort,
+		publicIp:remote.address,
+		publicPort:remote.port,
+	}
+	const client = new Client(clientInfo)
+    try {
+		await client.save()
+		console.log("Host has been saved")
+    } catch (e) {
+		console.log(e)
+	}
+	tempClientInfo = {
+		roomId:payload.roomId,
+		host:'0',
 	}
 
-    if(payload.name == 'B') {
-		console.log("B setted")
-    	publicEndpointB = {
-    		name: 'B',
-    		address: remote.address,
-			port: remote.port,
-			localAddress:payload.localAddress,
-			localPort: payload.localPort,
-			conType:connectionType
-    	}
+	const tempClient=new Client(tempClientInfo)
+	try {
+		await tempClient.save()
+		console.log("temp client has been saved")
+	} catch (error) {
+		console.log(error)
 	}
-	
-    sendPublicDataToClients();
 }
 
-function JoinGameLobby(){
-	
+async function JoinGameLobby(payload,remote){
+
+	const filter = { roomId:payload.roomId,host:'0' };
+	const update = 
+	{
+		userId:payload.userId,
+		localIp:payload.localIp,
+		localPort:payload.localPort,
+		publicIp:remote.address,
+		publicPort:remote.port
+	};
+
+	let doc = await Client.findOneAndUpdate(filter, update);
+	sendDataToClients(payload.roomId);
 }
 
-function sendPublicDataToClients () {
-	if(publicEndpointA && publicEndpointB) {
-		var portA, adressA,portB,addressB;
+async function sendDataToClients(RoomId){
+	console.log("rom"+RoomId)
+	var host = await Client.findOne({roomId:RoomId,host:'1'},function(err,data){
+		if(!data){
+			return null;
+		}
+		console.log(data.roomId)
+		return data
+	})
+	console.log("host : "+ host.userId)
 
+	var guest = await Client.findOne({roomId:RoomId,host:'0'},function(err,data){
+		if(!data){
+			return null;
+		}
+
+		return data
+	})
+
+	
+	if(host && guest) {
+		console.log("ifteyiz")
+		publicEndpointA = {
+    		name:host.userId,
+    		address: host.publicIp,
+			port: host.publicPort,
+			localAddress:host.localIp,
+			localPort: host.localPort,
+			conType:1
+		}
+		publicEndpointB = {
+			name:guest.userId,
+    		address: guest.publicIp,
+			port: guest.publicPort,
+			localAddress:guest.localIp,
+			localPort: guest.localPort,
+			conType:1
+    	}
 		// Nat type evaluation
 		if(publicEndpointA.address==publicEndpointB.address)
 		{
 			publicEndpointA.conType=0;
 			publicEndpointB.conType=0;
 		}
+		console.log("A: "+JSON.stringify(publicEndpointA))
+		console.log("B: "+JSON.stringify(publicEndpointB))
+
 	
 		var messageForA = new Buffer(JSON.stringify(publicEndpointB));
 		socket.send(messageForA, 0, messageForA.length, publicEndpointA.port,publicEndpointA.address, function (err, nrOfBytesSent) {
@@ -102,13 +146,7 @@ function sendPublicDataToClients () {
 			if(err) return console.log(err);
 			console.log('> public endpoint of A sent to B');
 		});
-
 	}
 }
-
-
-
-
-
 
 

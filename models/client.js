@@ -3,15 +3,25 @@ var mongoose = require('mongoose');
 const Client = mongoose.model('Client',{
     userId:{
         type:String,
+        required:false,
+        trim:true
+    },
+    roomId:{
+        type:String,
         required:true,
         trim:true
     },
+    host:{
+        type:String,
+        required:true
+    },
     localIp:{
         type:String,
-        required : true
+        required : false
     },
     localPort:{
         type:String,
+        required:false
     },
     publicIp:{
         type:String,
@@ -19,8 +29,8 @@ const Client = mongoose.model('Client',{
         trim:true
     },
     publicPort:{
-        type:Boolean,
-        required:true
+        type:String,
+        required:false
     }
 })
 
