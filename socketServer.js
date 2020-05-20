@@ -114,7 +114,7 @@ async function sendDataToClients(RoomId){
 		console.log("ifteyiz")
 		publicEndpointA = {
     		userId:host.userId,
-			name:host.username,
+			name:host.userName,
     		address: host.publicIp,
 			port: host.publicPort,
 			localAddress:host.localIp,
@@ -124,7 +124,7 @@ async function sendDataToClients(RoomId){
 		publicEndpointB = {
 			
 			userId:guest.userId,
-			name:guest.username,
+			name:guest.userName,
     		address: guest.publicIp,
 			port: guest.publicPort,
 			localAddress:guest.localIp,
