@@ -3,8 +3,8 @@ const Client = require('./models/client');
 require('./db/mongoose')
 
 var socket = dgram.createSocket('udp4');
-//socket.bind(33333, '134.122.95.112');
-socket.bind(33333,'127.0.0.1');
+socket.bind(33333, '134.122.95.112');
+//socket.bind(33333,'127.0.0.1');
 //Type0: same nat type1: different nat type2: multiple nat 
 var connectionType=1;
 var publicEndpointA = null;
@@ -78,8 +78,8 @@ async function JoinGameLobby(reqMes,payload,remote){
 	const filter = { roomId:payload.roomId,host:'0' };
 	const update = 
 	{
-		userName: reqMes.User,
 		userId:reqMes.UserId,
+		userName: reqMes.User,
 		localIp:payload.localIp,
 		localPort:payload.localPort,
 		publicIp:remote.address,
