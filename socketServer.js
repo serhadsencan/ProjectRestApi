@@ -3,8 +3,8 @@ const Client = require('./models/client');
 require('./db/mongoose')
 
 var socket = dgram.createSocket('udp4');
-socket.bind(33333, '134.122.95.112');
-//socket.bind(33333,'127.0.0.1');
+//socket.bind(33333, '134.122.95.112');
+socket.bind(33333,'127.0.0.1');
 //Type0: same nat type1: different nat type2: multiple nat 
 var connectionType=1;
 var publicEndpointA = null;
@@ -42,7 +42,7 @@ socket.on('message', function (message, remote) {
 async function CreateGameLobby(reqMes,payload,remote)
 {
 	clientInfo = {
-		username: reqMes.User,
+		userName: reqMes.User,
 		userId:reqMes.UserId,
 		roomId:payload.roomId,
 		host:payload.Host,
@@ -51,6 +51,7 @@ async function CreateGameLobby(reqMes,payload,remote)
 		publicIp:remote.address,
 		publicPort:remote.port,
 	}
+
 	const client = new Client(clientInfo)
     try {
 		await client.save()
