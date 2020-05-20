@@ -22,11 +22,11 @@ socket.on('message', function (message, remote) {
 
     if (messageJson.Action =="CreateGameLobby")
 	{
-		CreateGameLobby(payload,remote);
+		CreateGameLobby(messageJson,payload,remote);
 	}
 	else if (messageJson.Action =="JoinGameLobby")
 	{
-		JoinGameLobby(payload,remote); 
+		JoinGameLobby(messageJson,payload,remote); 
     }
     else if (messageJson.Action =="StartHolePunch")
 	{
@@ -39,10 +39,11 @@ socket.on('message', function (message, remote) {
 
 // Request Handler metotları 
 
-async function CreateGameLobby(payload,remote)
+async function CreateGameLobby(reqMes,payload,remote)
 {
 	clientInfo = {
-		userId:payload.userId,
+		username: reqMes.User,
+		userId:reqMes.UserId,
 		roomId:payload.roomId,
 		host:payload.Host,
 		localIp:payload.localIp,
@@ -71,12 +72,13 @@ async function CreateGameLobby(payload,remote)
 	}
 }
 
-async function JoinGameLobby(payload,remote){
+async function JoinGameLobby(reqMes,payload,remote){
 
 	const filter = { roomId:payload.roomId,host:'0' };
 	const update = 
 	{
-		userId:payload.userId,
+		userName: reqMes.User,
+		userId:reqMes.UserId,
 		localIp:payload.localIp,
 		localPort:payload.localPort,
 		publicIp:remote.address,
@@ -110,7 +112,8 @@ async function sendDataToClients(RoomId){
 	if(host && guest) {
 		console.log("ifteyiz")
 		publicEndpointA = {
-    		name:host.userId,
+    		userId:host.userId,
+			name:host.username,
     		address: host.publicIp,
 			port: host.publicPort,
 			localAddress:host.localIp,
@@ -119,7 +122,8 @@ async function sendDataToClients(RoomId){
 		}
 		publicEndpointB = {
 			
-			name:guest.userId,
+			userId:guest.userId,
+			name:guest.username,
     		address: guest.publicIp,
 			port: guest.publicPort,
 			localAddress:guest.localIp,

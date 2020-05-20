@@ -1,6 +1,11 @@
 var mongoose = require('mongoose');
 
 const Client = mongoose.model('Client',{
+    userName:{
+        type:String,
+        required:false,
+        trim:true
+    },
     userId:{
         type:String,
         required:false,
